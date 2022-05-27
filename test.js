@@ -55,10 +55,10 @@ class AABB {
     }
 
     setSides() {
-        this.leftSide = this._center[0] - this.halfW;
-        this.rightSide = this._center[0] - this.halfW;
-        this.topSide = this._center[1] - this.halfH;
-        this.bottomSide = this._center[1] - this.halfH;
+        this.leftSide = this._center.x - this.halfW;
+        this.rightSide = this._center.x - this.halfW;
+        this.topSide = this._center.y - this.halfH;
+        this.bottomSide = this._center.y - this.halfH;
     }
 
     getPoints() {
@@ -85,11 +85,12 @@ class QuadTree {
     }
 
     insert(p) {
+        console.log(p)
         if (!this.boundary.containsPoint(p) || !this.boundary.intersectsAABB(p.parent)) {
             return false;
         }
 
-        if (this.points.length < QuadTree.QT_NODE_CAPACITY && this.northWest != null) {
+        if (this.points.length < QuadTree.QT_NODE_CAPACITY && this.northWest === null) {
             this.points.push(p);
             return true;
         }
@@ -195,7 +196,7 @@ class QuadTree {
 const randint = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 
 const makeObjs = () => {
-    return Array(100).fill(0).map(_ => new AABB(
+    return new Array(10).fill(0).map(_ => new AABB(
         new XY(randint(0, 500), randint(0, 500)),
         randint(2, 100),
         randint(2, 100),
@@ -203,7 +204,7 @@ const makeObjs = () => {
     ));
 }
 
-const quad = QuadTree(
+const quad = new QuadTree(
     new AABB(
         new XY(250, 250),
         250, 250
@@ -236,6 +237,7 @@ function setup() {
 
 function draw() {
     background(0);
+    playerArea.center = new XY(mouseX, mouseY);
     quad.clear();
     for (const o of gameObjs) {
         for (const p of o.points) {
@@ -246,4 +248,28 @@ function draw() {
     strokeWeight(1);
     noFill();
     drawTreeRects(quad);
+    stroke(255);
+    for (const i of gameObjs) {
+        rect(...i.toRect());
+    }
+    let inRange = quad.queryRange(playerArea);
+    const ranegSet = new Set(inRange);
+    let drawRect = new Set();
+    for (const i of inRange) {
+        if (!drawRect.has(i.parent)) {
+            drawRect.add(i.parent);
+            if (ranegSet.has(i)) {
+                stroke(0, 255, 0);
+                fill(0, 255, 0);
+                rect(...i.parent.toRect());
+            } else {
+                stroke(255);
+                fill(255);
+                rect(...i.parent.toRect());
+            }
+        }
+    }
+    stroke(0, 0, 255);
+    fill(0, 0, 255);
+    rect(...playerArea.toRect());
 }
