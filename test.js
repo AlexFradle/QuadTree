@@ -56,9 +56,9 @@ class AABB {
 
     setSides() {
         this.leftSide = this._center.x - this.halfW;
-        this.rightSide = this._center.x - this.halfW;
+        this.rightSide = this._center.x + this.halfW;
         this.topSide = this._center.y - this.halfH;
-        this.bottomSide = this._center.y - this.halfH;
+        this.bottomSide = this._center.y + this.halfH;
     }
 
     getPoints() {
@@ -73,7 +73,7 @@ class AABB {
 
 
 class QuadTree {
-    static QT_NODE_CAPACITY = 2;
+    static QT_NODE_CAPACITY = 1;
 
     constructor(boundary) {
         this.boundary = boundary;
@@ -85,7 +85,6 @@ class QuadTree {
     }
 
     insert(p) {
-        console.log(p)
         if (!this.boundary.containsPoint(p) || !this.boundary.intersectsAABB(p.parent)) {
             return false;
         }
